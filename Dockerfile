@@ -1,18 +1,19 @@
-# VERSION 1.9.0-4
-# AUTHOR: Matthieu "Puckel_" Roisil
+# VERSION 1.10.0-4
+# AUTHOR: Aaron Brongersma
+# ORIGINAL-AUTHOR: Matthieu "Puckel_" Roisil
 # DESCRIPTION: Basic Airflow container
 # BUILD: docker build --rm -t puckel/docker-airflow .
 # SOURCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.6-slim
-LABEL maintainer="Puckel_"
+FROM python:3.5-slim
+LABEL maintainer="abrongersma"
 
 # Never prompts the user for choices on installation/configuration of packages
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.9.0
+ARG AIRFLOW_VERSION=1.10.0
 ARG AIRFLOW_HOME=/usr/local/airflow
 
 # Define en_US.
@@ -41,9 +42,6 @@ RUN set -ex \
         $buildDeps \
         python3-pip \
         python3-requests \
-        mysql-client \
-        mysql-server \
-        default-libmysqlclient-dev \
         apt-utils \
         curl \
         rsync \
@@ -58,8 +56,9 @@ RUN set -ex \
     && pip install pytz \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
+    && pip install psycopg2 \
     && pip install pyasn1 \
-    && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql]==$AIRFLOW_VERSION \
+    && pip install git+git://github.com/navistone/incubator-airflow.git@${AIRFLOW_VERSION}[crypto,celery,postgres,s3,slack,mssql]==$AIRFLOW_VERSION \
     && pip install celery[redis]==4.1.1 \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
