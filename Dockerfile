@@ -1,4 +1,4 @@
-# VERSION 1.10.0-4
+# VERSION 1.10.0
 # AUTHOR: Aaron Brongersma
 # ORIGINAL-AUTHOR: Matthieu "Puckel_" Roisil
 # DESCRIPTION: Basic Airflow container
@@ -13,8 +13,8 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.10.0
-ARG AIRFLOW_HOME=/usr/local/airflow
+ARG AIRFLOW_VERSION="1.10.0"
+ARG AIRFLOW_HOME="/usr/local/airflow"
 
 # Define en_US.
 ENV LANGUAGE en_US.UTF-8
@@ -22,6 +22,7 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
 ENV LC_MESSAGES en_US.UTF-8
+ENV SLUGIFY_USES_TEXT_UNIDECODE yes
 
 RUN set -ex \
     && buildDeps=' \
@@ -30,7 +31,6 @@ RUN set -ex \
         libsasl2-dev \
         libssl-dev \
         libffi-dev \
-        build-essential \
         libblas-dev \
         liblapack-dev \
         libpq-dev \
@@ -40,8 +40,12 @@ RUN set -ex \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
+        build-essential \
         python3-pip \
         python3-requests \
+        mysql-client \
+        mysql-server \
+        default-libmysqlclient-dev \
         apt-utils \
         curl \
         rsync \
@@ -58,8 +62,8 @@ RUN set -ex \
     && pip install ndg-httpsclient \
     && pip install psycopg2 \
     && pip install pyasn1 \
-    && pip install git+git://github.com/navistone/incubator-airflow.git@${AIRFLOW_VERSION}[crypto,celery,postgres,s3,slack,mssql]==$AIRFLOW_VERSION \
-    && pip install celery[redis]==4.1.1 \
+    && pip install apache-airflow[crypto,celery,postgres,s3,slack,mysql,mssql]==$AIRFLOW_VERSION \
+    && pip install 'celery[redis]>=4.1.1,<4.2.0' \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
